@@ -1,9 +1,9 @@
 from aiogram import Bot, Dispatcher, types
 from aiogram.types import ParseMode
 import logging
-import os
 import random
 from aiogram.utils.executor import start_webhook
+from aiohttp import web
 
 API_TOKEN = '7951137634:AAHA94m5HZ4RhW0CjkNw5lGgv72e3Ur26R8'
 
@@ -45,14 +45,20 @@ async def handle_sosal(message: types.Message):
         "сосал завидно", "сосал полегче"
     ]
     random_phrase = random.choice(phrases)
-    await message.answer(f"{message.from_user.get_mention()} , сегодня ты {random_phrase}!")
+    await message.answer(f"{message.from_user.get_mention()} сегодня ты {random_phrase}!")
 
-if __name__ == "__main__":
-    from aiohttp import web
-    app = web.Application()
+# Create aiohttp app and run it
+async def on_startup(app):
+    await bot.set_webhook(WEBHOOK_URL)
 
-    # Добавляем настройку вебхуков к приложению
-    app.on_startup.append(on_start_webhook)
+app = web.Application()
+app.on_startup.append(on_startup)
 
-    # Запуск вебхуков
-    start_webhook(dispatcher=dp, webhook_path=WEBHOOK_PATH, on_startup=on_start_webhook, app=app)
+start_webhook(
+    dispatcher=dp,
+    webhook_path=WEBHOOK_PATH,
+    on_startup=on_startup,
+    app=app,
+    host='0.0.0.0',
+    port=80
+)
