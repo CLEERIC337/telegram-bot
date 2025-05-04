@@ -52,11 +52,10 @@ app.on_startup.append(on_start_webhook)
 
 # Run webhook using aiohttp app and aiogram dispatcher
 if __name__ == '__main__':
-    from aiogram.utils import executor
-    executor.start_webhook(
+    start_webhook(
         dispatcher=dp,
         webhook_path=WEBHOOK_PATH,
         app=app,
         host='0.0.0.0',
-        port=80
+        port=8080  # Render автоматически определяет порт
     )
