@@ -7,15 +7,20 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 from aiogram.filters import CommandStart
 from aiogram import F
+import os
 
-# Токен бота
-TOKEN = "7951137634:AAHA94m5HZ4RhW0CjkNw5lGgv72e3Ur26R8"
+TOKEN = "7951137634:AAHA94m5HZ4RhW0CjkNw5lGgv72e3Ur26R8"  # Твой токен
 
 logging.basicConfig(level=logging.INFO)
 
 # Создание бота и диспетчера
 bot = Bot(token=TOKEN, parse_mode=ParseMode.HTML)
 dp = Dispatcher(storage=MemoryStorage())
+
+# Удаление вебхука (если он установлен)
+async def remove_webhook():
+    await bot.delete_webhook()
+    print("Webhook удален")
 
 # Реакция на "чек"
 @dp.message(F.text.lower() == "чек", F.chat.type.in_({"group", "supergroup"}))
@@ -45,6 +50,7 @@ async def handle_sosal(message: Message):
 
 # Запуск
 async def main():
+    await remove_webhook()  # Удаляем вебхук, если он был
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
