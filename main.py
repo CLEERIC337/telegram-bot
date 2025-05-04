@@ -55,8 +55,7 @@ if __name__ == '__main__':
     start_webhook(
         dispatcher=dp,
         webhook_path=WEBHOOK_PATH,
-        on_startup=on_start_webhook,  # on_startup уже передается через app.on_startup
-        app=app,
+        app=app,  # Здесь мы передаем только приложение app
         host='0.0.0.0',
         port=80
     )
