@@ -9,7 +9,8 @@ API_TOKEN = '7951137634:AAHA94m5HZ4RhW0CjkNw5lGgv72e3Ur26R8'
 logging.basicConfig(level=logging.INFO)
 
 bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot, storage=MemoryStorage())
+storage = MemoryStorage()
+dp = Dispatcher(storage=storage, bot=bot)
 
 # Define webhook settings
 WEBHOOK_HOST = 'https://telegram-bot-9ze3.onrender.com'  # Замените на ваш URL с Render
