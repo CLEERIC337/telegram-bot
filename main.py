@@ -1,8 +1,8 @@
 from aiogram import Bot, Dispatcher, types
 import logging
 import random
-from aiogram.utils.executor import start_webhook
 from aiohttp import web
+from aiogram.utils.executor import start_webhook
 
 API_TOKEN = '7951137634:AAHA94m5HZ4RhW0CjkNw5lGgv72e3Ur26R8'
 
@@ -52,10 +52,11 @@ app.on_startup.append(on_start_webhook)
 
 # Run webhook using aiohttp app and aiogram dispatcher
 if __name__ == '__main__':
-    start_webhook(
+    from aiogram.utils import executor
+    executor.start_webhook(
         dispatcher=dp,
         webhook_path=WEBHOOK_PATH,
-        app=app,  # Здесь мы передаем только приложение app
+        app=app,
         host='0.0.0.0',
         port=80
     )
