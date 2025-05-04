@@ -6,7 +6,6 @@ from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 from aiogram.filters import CommandStart
-from aiogram.client.default import DefaultBotProperties
 from aiogram import F
 import os
 
@@ -14,7 +13,8 @@ TOKEN = os.getenv("BOT_TOKEN")  # Токен должен быть задан в
 
 logging.basicConfig(level=logging.INFO)
 
-bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+# Создание бота и диспетчера
+bot = Bot(token=TOKEN, parse_mode=ParseMode.HTML)
 dp = Dispatcher(storage=MemoryStorage())
 
 # Реакция на "чек"
@@ -22,7 +22,7 @@ dp = Dispatcher(storage=MemoryStorage())
 async def handle_check(message: Message):
     await message.answer("Сасу")
 
-# Реакция на "как сосал ..."
+# Реакция на "как сосал ...", начало текста
 @dp.message(F.text.lower().startswith("как сосал"), F.chat.type.in_({"group", "supergroup"}))
 async def handle_sosal(message: Message):
     phrases = [
