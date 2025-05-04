@@ -2,7 +2,6 @@ from aiogram import Bot, Dispatcher, types
 import logging
 import random
 from aiohttp import web
-from aiogram.utils.executor import start_webhook
 from aiogram.fsm.storage.memory import MemoryStorage
 
 API_TOKEN = '7951137634:AAHA94m5HZ4RhW0CjkNw5lGgv72e3Ur26R8'
@@ -11,24 +10,22 @@ logging.basicConfig(level=logging.INFO)
 
 bot = Bot(token=API_TOKEN)
 storage = MemoryStorage()
-dp = Dispatcher(bot, storage=storage)
+dp = Dispatcher(storage=storage)
 
-# Define webhook settings
-WEBHOOK_HOST = 'https://telegram-bot-9ze3.onrender.com'  # Замените на ваш URL с Render
+# Привязка бота к диспетчеру
+dp["bot"] = bot
+
+WEBHOOK_HOST = 'https://telegram-bot-9ze3.onrender.com'  # Замените на свой
 WEBHOOK_PATH = '/webhook'
 WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 
-# Set webhook
-async def on_start_webhook(app):
-    await bot.set_webhook(WEBHOOK_URL)
-
-# Handle the 'чек' command
-@dp.message_handler(lambda message: message.text.lower() == "чек" and len(message.text.split()) == 1)
+# Обработчик команды "чек"
+@dp.message(lambda message: message.text.lower() == "чек" and len(message.text.split()) == 1)
 async def handle_check(message: types.Message):
     await message.answer("Сасу")
 
-# Handle the 'как сосал' command
-@dp.message_handler(lambda message: message.text.lower() == "как сосал" and len(message.text.split()) == 2)
+# Обработчик команды "как сосал"
+@dp.message(lambda message: message.text.lower().startswith("как сосал") and len(message.text.split()) == 2)
 async def handle_sosal(message: types.Message):
     phrases = [
         "сосал хорошо", "сосал вверх", "сосал ниже", "сосал мягче", "сосал глубже",
@@ -48,19 +45,21 @@ async def handle_sosal(message: types.Message):
     random_phrase = random.choice(phrases)
     await message.answer(f"{message.from_user.get_mention()} сегодня ты {random_phrase}!")
 
-# Define the webhook handler
+# Установка вебхука
+async def on_startup(app):
+    await bot.set_webhook(WEBHOOK_URL)
+
+# Обработка запроса от Telegram
 async def handle_webhook(request):
-    payload = await request.json()
-    update = types.Update(**payload)
-    await dp.process_update(update)
+    data = await request.json()
+    update = types.Update(**data)
+    await dp.feed_update(bot, update)
     return web.Response()
 
-# Create aiohttp app and run it
+# Настройка aiohttp приложения
 app = web.Application()
 app.router.add_post(WEBHOOK_PATH, handle_webhook)
+app.on_startup.append(on_startup)
 
-app.on_startup.append(on_start_webhook)
-
-# Ensure that the app listens on the correct port for Render
 if __name__ == '__main__':
-    web.run_app(app, host='0.0.0.0', port=8080)  # Explicitly set to port 8080
+    web.run_app(app, host='0.0.0.0', port=8080)
