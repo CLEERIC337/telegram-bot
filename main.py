@@ -2,14 +2,14 @@ from aiogram import Bot, Dispatcher, types
 import logging
 import random
 from aiohttp import web
-from aiogram.utils.executor import start_webhook
+from aiogram.fsm.storage.memory import MemoryStorage
 
 API_TOKEN = '7951137634:AAHA94m5HZ4RhW0CjkNw5lGgv72e3Ur26R8'
 
 logging.basicConfig(level=logging.INFO)
 
 bot = Bot(token=API_TOKEN)
-dp = Dispatcher(bot)
+dp = Dispatcher(bot, storage=MemoryStorage())
 
 # Define webhook settings
 WEBHOOK_HOST = 'https://telegram-bot-9ze3.onrender.com'  # Замените на ваш URL с Render
@@ -50,12 +50,16 @@ async def handle_sosal(message: types.Message):
 app = web.Application()
 app.on_startup.append(on_start_webhook)
 
-# Run webhook using aiohttp app and aiogram dispatcher
+# Handle webhook
+async def handle_webhook(request):
+    json_obj = await request.json()
+    update = types.Update(**json_obj)
+    Dispatcher.set_current(dp)
+    await dp.process_update(update)
+    return web.Response()
+
+app.router.add_post(WEBHOOK_PATH, handle_webhook)
+
+# Run aiohttp app
 if __name__ == '__main__':
-    start_webhook(
-        dispatcher=dp,
-        webhook_path=WEBHOOK_PATH,
-        app=app,
-        host='0.0.0.0',
-        port=8080  # Render автоматически определяет порт
-    )
+    web.run_app(app, host='0.0.0.0', port=8080)
