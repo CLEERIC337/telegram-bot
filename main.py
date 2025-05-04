@@ -12,7 +12,7 @@ bot = Bot(token=API_TOKEN)
 dp = Dispatcher(bot)
 
 # Define webhook settings
-WEBHOOK_HOST = 'https://yourappname.onrender.com'  # Замените на ваш URL с Render
+WEBHOOK_HOST = 'https://telegram-bot-9ze3.onrender.com'  # Замените на ваш URL с Render
 WEBHOOK_PATH = '/webhook'
 WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
 
