@@ -61,13 +61,6 @@ app.router.add_post(WEBHOOK_PATH, handle_webhook)
 
 app.on_startup.append(on_start_webhook)
 
-# Run webhook using aiohttp app and aiogram dispatcher
+# Ensure that the app listens on the correct port for Render
 if __name__ == '__main__':
-    from aiogram.utils import executor
-    executor.start_webhook(
-        dispatcher=dp,
-        webhook_path=WEBHOOK_PATH,
-        app=app,
-        host='0.0.0.0',
-        port=8080  # Ensure it's listening on port 8080
-    )
+    web.run_app(app, host='0.0.0.0', port=8080)  # Explicitly set to port 8080
