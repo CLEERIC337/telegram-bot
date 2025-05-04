@@ -7,9 +7,9 @@ from aiogram.fsm.storage.memory import MemoryStorage
 from aiogram.types import Message
 from aiogram.filters import CommandStart
 from aiogram import F
-import os
 
-TOKEN = os.getenv("BOT_TOKEN")  # Токен должен быть задан в Render
+# Токен бота
+TOKEN = "7951137634:AAHA94m5HZ4RhW0CjkNw5lGgv72e3Ur26R8"
 
 logging.basicConfig(level=logging.INFO)
 
