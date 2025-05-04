@@ -1,32 +1,30 @@
-from aiogram import Bot, Dispatcher, types
 import logging
 import random
-from aiohttp import web
+import asyncio
+from aiogram import Bot, Dispatcher, types
+from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
+from aiogram.types import Message
+from aiogram.filters import CommandStart
+from aiogram.client.default import DefaultBotProperties
+from aiogram import F
+import os
 
-API_TOKEN = '7951137634:AAHA94m5HZ4RhW0CjkNw5lGgv72e3Ur26R8'
+TOKEN = os.getenv("BOT_TOKEN")  # Токен должен быть задан в Render
 
 logging.basicConfig(level=logging.INFO)
 
-bot = Bot(token=API_TOKEN)
-storage = MemoryStorage()
-dp = Dispatcher(storage=storage)
+bot = Bot(token=TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+dp = Dispatcher(storage=MemoryStorage())
 
-# Привязка бота к диспетчеру
-dp["bot"] = bot
-
-WEBHOOK_HOST = 'https://telegram-bot-9ze3.onrender.com'  # Замените на свой
-WEBHOOK_PATH = '/webhook'
-WEBHOOK_URL = f"{WEBHOOK_HOST}{WEBHOOK_PATH}"
-
-# Обработчик команды "чек"
-@dp.message(lambda message: message.text.lower() == "чек" and len(message.text.split()) == 1)
-async def handle_check(message: types.Message):
+# Реакция на "чек"
+@dp.message(F.text.lower() == "чек", F.chat.type.in_({"group", "supergroup"}))
+async def handle_check(message: Message):
     await message.answer("Сасу")
 
-# Обработчик команды "как сосал"
-@dp.message(lambda message: message.text.lower().startswith("как сосал") and len(message.text.split()) == 2)
-async def handle_sosal(message: types.Message):
+# Реакция на "как сосал ..."
+@dp.message(F.text.lower().startswith("как сосал"), F.chat.type.in_({"group", "supergroup"}))
+async def handle_sosal(message: Message):
     phrases = [
         "сосал хорошо", "сосал вверх", "сосал ниже", "сосал мягче", "сосал глубже",
         "сосал точно", "сосал вовремя", "сосал так", "сосал наглухо", "сосал нормально",
@@ -42,24 +40,12 @@ async def handle_sosal(message: types.Message):
         "сосал ровно", "сосал подряд", "сосал четко", "сосал жестко", "сосал балдежно",
         "сосал завидно", "сосал полегче"
     ]
-    random_phrase = random.choice(phrases)
-    await message.answer(f"{message.from_user.get_mention()} сегодня ты {random_phrase}!")
+    phrase = random.choice(phrases)
+    await message.answer(f"{message.from_user.mention_html()} {phrase}")
 
-# Установка вебхука
-async def on_startup(app):
-    await bot.set_webhook(WEBHOOK_URL)
+# Запуск
+async def main():
+    await dp.start_polling(bot)
 
-# Обработка запроса от Telegram
-async def handle_webhook(request):
-    data = await request.json()
-    update = types.Update(**data)
-    await dp.feed_update(bot, update)
-    return web.Response()
-
-# Настройка aiohttp приложения
-app = web.Application()
-app.router.add_post(WEBHOOK_PATH, handle_webhook)
-app.on_startup.append(on_startup)
-
-if __name__ == '__main__':
-    web.run_app(app, host='0.0.0.0', port=8080)
+if __name__ == "__main__":
+    asyncio.run(main())
