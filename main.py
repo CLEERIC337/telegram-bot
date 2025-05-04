@@ -1,5 +1,4 @@
 from aiogram import Bot, Dispatcher, types
-from aiogram.types import ParseMode
 import logging
 import random
 from aiogram.utils.executor import start_webhook
@@ -54,11 +53,13 @@ async def on_startup(app):
 app = web.Application()
 app.on_startup.append(on_startup)
 
-start_webhook(
-    dispatcher=dp,
-    webhook_path=WEBHOOK_PATH,
-    on_startup=on_startup,
-    app=app,
-    host='0.0.0.0',
-    port=80
-)
+# Run webhook using aiohttp app and aiogram dispatcher
+if __name__ == '__main__':
+    start_webhook(
+        dispatcher=dp,
+        webhook_path=WEBHOOK_PATH,
+        on_startup=on_startup,
+        app=app,
+        host='0.0.0.0',
+        port=80
+    )
